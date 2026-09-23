@@ -8,8 +8,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>NEBULOSA</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="fonts/jetbrains-mono.css" rel="stylesheet">
 <style>
 :root{
   --green:#00FF00; --dim:#00A000; --mid:#00AA00; --cyan:#00CED1; --red:#FF6347;
@@ -1004,14 +1003,23 @@ function renderLocOrigin(){
 function askLoc(){
   if(S.locState!=='idle')return;
   if(!navigator.geolocation){S.locState='unsupported';renderLoc();return}
-  S.locState='asking';
-  navigator.geolocation.watchPosition(
+  S.locState='asking';watchLoc();
+}
+let locWatch=null;
+function watchLoc(){
+  if(locWatch!==null)return;
+  locWatch=navigator.geolocation.watchPosition(
     p=>{S.locState='ok';S.loc={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy};renderLoc()},
-    e=>{S.locState=e.code===1?'denied':'idle';renderLoc()},
+    e=>{if(e.code===1){S.locState='denied';navigator.geolocation.clearWatch(locWatch);locWatch=null}else if(S.locState!=='ok')S.locState='idle';renderLoc()},
     {enableHighAccuracy:true,maximumAge:10000,timeout:20000});
 }
 // pede permissão no primeiro toque (gesto do usuário), nunca em silêncio
 document.addEventListener('pointerdown',askLoc,{once:true});
+// bateria: GPS desligado com a aba oculta; volta ao reabrir (só se já havia permissão)
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){if(locWatch!==null){navigator.geolocation.clearWatch(locWatch);locWatch=null}}
+  else if(S.locState==='ok'||S.locState==='asking')watchLoc();
+});
 renderLocOrigin();
 setInterval(()=>{if(phase()===4){renderLoc();renderLocOrigin()}},900);
 
