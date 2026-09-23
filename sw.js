@@ -1,7 +1,7 @@
 /* NEBULOSA — service worker (PWA offline).
    Cache-first com atualização em segundo plano para os arquivos do próprio site.
    Para forçar atualização em todos os aparelhos, aumente CACHE (ex.: nebulosa-v2). */
-const CACHE = 'nebulosa-v2';
+const CACHE = 'nebulosa-v3';
 const ARQUIVOS = [
   './', './index.html', './manifest.json',
   './banco-de-frases-v5.js', './revelacoes.js', './temporal.js', './degradacao.js',
