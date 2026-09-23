@@ -1,11 +1,14 @@
 /* NEBULOSA — service worker (PWA offline).
    Cache-first com atualização em segundo plano para os arquivos do próprio site.
    Para forçar atualização em todos os aparelhos, aumente CACHE (ex.: nebulosa-v2). */
-const CACHE = 'nebulosa-v3';
+const CACHE = 'nebulosa-v4';
 const ARQUIVOS = [
   './', './index.html', './manifest.json',
   './banco-de-frases-v5.js', './revelacoes.js', './temporal.js', './degradacao.js',
-  './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'
+  './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png',
+  './fonts/jetbrains-mono.css', './fonts/jetbrains-mono-latin.woff2', './fonts/jetbrains-mono-latin-ext.woff2',
+  './fonts/jetbrains-mono-cyrillic.woff2', './fonts/jetbrains-mono-cyrillic-ext.woff2', './fonts/jetbrains-mono-greek.woff2',
+  './fonts/jetbrains-mono-vietnamese.woff2'
 ];
 
 self.addEventListener('install', e => {
