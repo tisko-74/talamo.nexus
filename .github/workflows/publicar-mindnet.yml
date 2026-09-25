@@ -54,8 +54,6 @@ jobs:
           put index.html
           put sw.js
           mirror -R --verbose nebulosa nebulosa
-          mirror -R --verbose sql sql
-          mirror -R --verbose dados dados
-          mirror -R --verbose ia ia
+          mirror -R --verbose lab lab
           bye
           FIM
