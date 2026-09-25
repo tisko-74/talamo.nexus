@@ -11,7 +11,7 @@ Tudo roda online (GitHub + hospedagem + navegador), sem instalar nada no computa
 | `nebulosa/` | NEBULOSA — receptor temporal (ficção interativa, HTML/CSS/JS puro, funciona offline) | no ar, público |
 | `lab/` | laboratório, **protegido por senha no cPanel** (Privacidade do diretório) | fechado |
 | `lab/index.html` | página com a lista de projetos | — |
-| `lab/sql/` | exercícios de SQL (SQLite/DuckDB no navegador) | vazio |
+| `lab/sql/` | exercícios de SQL com SQLite no navegador (sql.js); base pública do IBGE e eleições em SC (TSE); lê CSV do próprio computador | pronto |
 | `lab/dados/` | análises, tabelas e gráficos | vazio |
 | `lab/ia/` | testes com modelos de IA | vazio |
 | `sw.js` | desliga o service worker antigo da raiz (época em que a NEBULOSA ficava aqui) | transitório |
