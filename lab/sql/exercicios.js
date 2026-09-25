@@ -61,8 +61,8 @@ const EXERCICIOS = [
     resposta: "SELECT e.regiao, COUNT(*) FROM municipios m JOIN estados e ON e.codigo_uf = m.codigo_uf GROUP BY e.regiao;" },
   { bloco: "3. Cruzar tabelas",
     enunciado: "Em quais 5 estados o município tem, em média, a <b>maior área</b>? Mostre a uf e a área do estado dividida pelo número de municípios, com 1 casa decimal, da maior para a menor.",
-    dica: "Agrupe por estado e calcule <code>ROUND(e.area_km2 * 1.0 / COUNT(*), 1)</code>. O <code>* 1.0</code> evita a divisão inteira (em SQLite, 7 / 2 = 3).",
-    resposta: "SELECT e.uf, ROUND(e.area_km2 * 1.0 / COUNT(*), 1) AS media FROM municipios m JOIN estados e ON e.codigo_uf = m.codigo_uf GROUP BY e.uf ORDER BY media DESC LIMIT 5;",
+    dica: "Agrupe por estado e calcule <code>ROUND(e.area_km2 * 1.0 / COUNT(*), 1)</code>. O <code>* 1.0</code> evita a divisão inteira (em SQLite, 7 / 2 = 3). Coloque <code>e.area_km2</code> também no <code>GROUP BY</code>: o SQLite deixa passar, mas o MySQL exige toda coluna usada fora de <code>COUNT</code>/<code>SUM</code>.",
+    resposta: "SELECT e.uf, ROUND(e.area_km2 * 1.0 / COUNT(*), 1) AS media FROM municipios m JOIN estados e ON e.codigo_uf = m.codigo_uf GROUP BY e.uf, e.area_km2 ORDER BY media DESC LIMIT 5;",
     ordem: true },
 
   // 4. Engenharia e recursos avançados
@@ -78,8 +78,8 @@ const EXERCICIOS = [
     ordem: true },
   { bloco: "4. Avançado",
     enunciado: "Para cada estado, qual é o <b>município mais ao norte</b>? Mostre a uf e o nome, em ordem de uf.",
-    dica: "Funções de janela numeram linhas dentro de cada grupo sem juntar as linhas: <code>ROW_NUMBER() OVER (PARTITION BY m.codigo_uf ORDER BY m.latitude DESC)</code>. Calcule isso numa subconsulta e fique só com a posição 1.",
-    resposta: "SELECT uf, nome FROM (SELECT e.uf, m.nome, ROW_NUMBER() OVER (PARTITION BY m.codigo_uf ORDER BY m.latitude DESC) AS pos FROM municipios m JOIN estados e ON e.codigo_uf = m.codigo_uf) WHERE pos = 1 ORDER BY uf;",
+    dica: "Funções de janela numeram linhas dentro de cada grupo sem juntar as linhas: <code>ROW_NUMBER() OVER (PARTITION BY m.codigo_uf ORDER BY m.latitude DESC)</code>. Calcule isso numa subconsulta, dê um apelido a ela (<code>(SELECT …) AS t</code>, o MySQL exige) e fique só com a posição 1.",
+    resposta: "SELECT uf, nome FROM (SELECT e.uf, m.nome, ROW_NUMBER() OVER (PARTITION BY m.codigo_uf ORDER BY m.latitude DESC) AS pos FROM municipios m JOIN estados e ON e.codigo_uf = m.codigo_uf) AS t WHERE pos = 1 ORDER BY uf;",
     ordem: true },
 
   // 5. Eleições em Florianópolis (codigo_ibge 4205407)

@@ -113,6 +113,17 @@ ol.ordem{margin:8px 0;padding-left:22px}
     <p class="dim" style="margin-bottom:0">Sugestão: baixe um CSV público (Câmara dos Deputados, IBGE, portal da transparência) e cruze com a tabela <code>municipios</code> pelo código do IBGE.</p>
   </div>
 
+  <h2>LEVAR PARA O MYSQL</h2>
+  <div class="card">
+    <p style="margin-top:0">A mesma base existe como arquivo para o <b>MySQL</b> da hospedagem, com chaves primárias e estrangeiras: <a href="dados/base-mysql.sql" download>baixar base-mysql.sql</a> (2 MB).</p>
+    <ol class="ordem">
+      <li>cPanel → <b>Assistente Banco de Dados</b>: crie o banco (ex.: <code>lab</code>, que vira <code>talamone_lab</code>), um usuário com senha forte e marque <b>todos os privilégios</b>. A senha fica só com você.</li>
+      <li>cPanel → <b>phpMyAdmin</b> → clique no banco à esquerda → aba <b>Importar</b> → escolha o arquivo → <b>Importar</b>.</li>
+      <li>Aba <b>SQL</b>: rode as mesmas consultas dos exercícios.</li>
+    </ol>
+    <p class="dim" style="margin-bottom:0">Diferenças que você vai notar: no MySQL, <code>7 / 2</code> dá 3,5 (no SQLite dá 3); a ordem alfabética põe "Águas Mornas" entre os "A" (o SQLite joga acentos para o fim); e comparar texto ignora maiúsculas e acentos. Importar de novo apaga e recria as 4 tabelas.</p>
+  </div>
+
   <h2>FONTES</h2>
   <p class="dim">Municípios e estados: <a href="https://github.com/kelvins/municipios-brasileiros">kelvins/municipios-brasileiros</a> (licença MIT, a partir do IBGE). Área dos estados: <a href="https://github.com/datasets-br/state-codes">datasets-br/state-codes</a> (domínio público). Eleições: <a href="https://basedosdados.org/dataset/br-tse-eleicoes">Base dos Dados</a>, a partir do TSE (só eleições ordinárias de SC). Montagem: <code>dados/montar.py</code>.</p>
 </main>
