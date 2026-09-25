@@ -1,0 +1,61 @@
+# Publica o site na Mindnet (public_html) por FTP a cada atualização da main.
+# Usuário e senha ficam nos segredos do repositório (Settings → Secrets and variables → Actions):
+#   FTP_USUARIO, FTP_SENHA. Nunca escrever a senha neste arquivo: o repositório é público.
+# O FTP vai direto ao IP do servidor (a nuvem laranja da Cloudflare não repassa FTP).
+# Arquivos apagados do repositório NÃO são apagados do servidor (mirror sem --delete, de propósito:
+# public_html tem pastas do próprio cPanel que não podem sumir).
+name: Publicar na Mindnet
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: publicar-mindnet
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conferir segredos
+        id: segredos
+        env:
+          FTP_USUARIO: ${{ secrets.FTP_USUARIO }}
+          FTP_SENHA: ${{ secrets.FTP_SENHA }}
+        run: |
+          if [ -z "$FTP_USUARIO" ] || [ -z "$FTP_SENHA" ]; then
+            echo "::warning::Segredos FTP_USUARIO/FTP_SENHA não cadastrados: nada foi publicado."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Instalar lftp
+        if: steps.segredos.outputs.ok == 'true'
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Enviar para public_html
+        if: steps.segredos.outputs.ok == 'true'
+        env:
+          FTP_USUARIO: ${{ secrets.FTP_USUARIO }}
+          FTP_SENHA: ${{ secrets.FTP_SENHA }}
+        run: |
+          lftp -p 2100 169.197.87.178 <<FIM
+          set ftp:ssl-allow yes
+          set ssl:verify-certificate no
+          set net:max-retries 2
+          set net:timeout 30
+          user "$FTP_USUARIO" "$FTP_SENHA"
+          cd public_html
+          put index.html
+          put sw.js
+          mirror -R --verbose nebulosa nebulosa
+          mirror -R --verbose sql sql
+          mirror -R --verbose dados dados
+          mirror -R --verbose ia ia
+          bye
+          FIM
