@@ -25,5 +25,7 @@ Tudo roda online (GitHub + hospedagem + navegador), sem instalar nada no computa
 ## Publicação
 
 - GitHub: `tisko-74/talamo.nexus` (branch `main`)
-- Vercel: `talamonexusvercel.vercel.app` (religar ao repositório `talamo.nexus`)
-- Domínio próprio: aguardando DNS
+- Hospedagem: Mindnet (cPanel), domínio `talamo.nexus` com DNS na Cloudflare (proxy ligado).
+  Publicar: cPanel → Git Version Control → Manage → Pull or Deploy → "Update from Remote" e depois "Deploy HEAD Commit".
+  O que é copiado para `public_html` está em `.cpanel.yml`.
+- Vercel: `talamonexusvercel.vercel.app` (fora de uso)
