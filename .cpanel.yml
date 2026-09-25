@@ -5,4 +5,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/talamone/public_html/
-    - /bin/cp -R index.html sw.js nebulosa sql dados ia $DEPLOYPATH
+    - /bin/cp -R index.html sw.js nebulosa lab $DEPLOYPATH
