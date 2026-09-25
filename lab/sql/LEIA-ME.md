@@ -7,8 +7,9 @@ Sem servidor e sem instalar nada: o banco é montado na memória da aba a cada v
 |---|---|
 | `index.html` | a página: explicação, exercícios, editor de consultas e leitura de CSV |
 | `app.js` | carrega o banco, roda as consultas, corrige os exercícios, importa CSV |
-| `exercicios.js` | os 16 exercícios (enunciado, dica e uma resposta de referência) |
+| `exercicios.js` | os 23 exercícios (enunciado, dica e uma resposta de referência) |
 | `dados/estados.csv`, `dados/municipios.csv` | base pública (IBGE), 27 estados e 5.571 municípios |
+| `dados/votacao.csv`, `dados/vagas.csv` | eleições em SC, 1994 a 2022 (TSE, via Base dos Dados): comparecimento, abstenção, brancos, nulos, vagas |
 | `dados/montar.py` | como os CSV foram montados a partir das fontes |
 | `lib/` | sql.js 1.14.2 (licença MIT, ver `LICENSE-sqljs.txt`) |
 

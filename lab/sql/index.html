@@ -53,7 +53,13 @@ ol.ordem{margin:8px 0;padding-left:22px}
   <h2>O QUE É ISTO</h2>
   <div class="card">
     <p style="margin-top:0"><b>SQL</b> é a linguagem para perguntar coisas a um banco de dados. O banco aqui é o <b>SQLite</b>, o mais usado do mundo (está no seu celular), carregado na página pela biblioteca <a href="https://sql.js.org/">sql.js</a>.</p>
-    <p>A base de exercícios tem duas tabelas públicas do <b>IBGE</b>: os <b>27 estados</b> e os <b>5.571 municípios</b> do Brasil. Elas se ligam pela coluna <code>codigo_uf</code>.</p>
+    <p>A base de exercícios tem quatro tabelas públicas:</p>
+    <ul>
+      <li><code>estados</code> e <code>municipios</code>: os 27 estados e os 5.571 municípios do Brasil (<b>IBGE</b>), ligados por <code>codigo_uf</code>;</li>
+      <li><code>votacao</code>: comparecimento, abstenção, brancos e nulos por cargo em cada município de <b>Santa Catarina</b>, eleições de 1994 a 2022 (<b>TSE</b>);</li>
+      <li><code>vagas</code>: quantas cadeiras estavam em disputa em cada município de SC.</li>
+    </ul>
+    <p>As tabelas de eleições se ligam a <code>municipios</code> por <code>codigo_ibge</code>. Florianópolis é o <code>4205407</code>.</p>
     <p style="margin-bottom:0">Uma consulta sempre segue esta ordem (só <code>SELECT</code> e <code>FROM</code> são obrigatórios):</p>
     <ol class="ordem">
       <li><code>SELECT</code> quais colunas</li>
@@ -108,7 +114,7 @@ ol.ordem{margin:8px 0;padding-left:22px}
   </div>
 
   <h2>FONTES</h2>
-  <p class="dim">Municípios e estados: <a href="https://github.com/kelvins/municipios-brasileiros">kelvins/municipios-brasileiros</a> (licença MIT, a partir do IBGE). Área dos estados: <a href="https://github.com/datasets-br/state-codes">datasets-br/state-codes</a> (domínio público). Montagem: <code>dados/montar.py</code>.</p>
+  <p class="dim">Municípios e estados: <a href="https://github.com/kelvins/municipios-brasileiros">kelvins/municipios-brasileiros</a> (licença MIT, a partir do IBGE). Área dos estados: <a href="https://github.com/datasets-br/state-codes">datasets-br/state-codes</a> (domínio público). Eleições: <a href="https://basedosdados.org/dataset/br-tse-eleicoes">Base dos Dados</a>, a partir do TSE (só eleições ordinárias de SC). Montagem: <code>dados/montar.py</code>.</p>
 </main>
 <script src="lib/sql-wasm-browser.js"></script>
 <script src="exercicios.js"></script>

@@ -2,7 +2,7 @@
 // Nada sai do computador: as tabelas ficam na memória da aba.
 
 const $ = (s) => document.querySelector(s);
-const BASE = ["estados", "municipios"];
+const BASE = ["estados", "municipios", "votacao", "vagas"];
 let SQL, db, csvBase = {}, atual = 0, feitos = lerFeitos();
 
 // ---------- CSV ----------
