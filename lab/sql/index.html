@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0E27">
+<title>SQL — laboratório TÁLAMO</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="../../nebulosa/icons/icon-192.png">
+<style>
+:root{--bg:#0A0E27;--card:#11163a;--line:#232a5c;--txt:#d8dcf0;--dim:#8a90b8;--green:#00FF00;--cyan:#00CED1;--amber:#FFB000;--red:#ff6b6b;
+  --mono:ui-monospace,'SFMono-Regular',Menlo,Consolas,'Liberation Mono',monospace}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--txt);font:15px/1.6 var(--mono)}
+main{max-width:1000px;margin:0 auto;padding:32px 16px 64px}
+a{color:var(--cyan)}
+h1{margin:0;font-size:26px;letter-spacing:4px;color:var(--green);text-shadow:0 0 12px rgba(0,255,0,.35)}
+h2{margin:32px 0 8px;font-size:16px;letter-spacing:2px;color:var(--cyan)}
+.sub{margin:6px 0 0;color:var(--dim)}
+.dim{color:var(--dim)} .ok{color:var(--green)} .erro{color:var(--red)}
+.card{padding:16px;background:var(--card);border:1px solid var(--line);border-radius:6px}
+code,pre{color:var(--amber);font-family:var(--mono)}
+pre{white-space:pre-wrap;word-break:break-word;margin:8px 0;padding:8px;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+.grade{display:grid;grid-template-columns:230px 1fr;gap:16px;align-items:start}
+@media (max-width:760px){.grade{grid-template-columns:1fr}}
+.grade>*{min-width:0} code{overflow-wrap:anywhere}
+#tabelas details{margin-bottom:8px} #tabelas ul{margin:4px 0 0;padding-left:18px;font-size:13px}
+summary{cursor:pointer}
+textarea{width:100%;min-height:140px;padding:10px;background:var(--bg);color:var(--txt);border:1px solid var(--line);border-radius:4px;font:14px/1.5 var(--mono);resize:vertical}
+textarea:focus{outline:none;border-color:var(--cyan)}
+button,input[type=text]{font:13px var(--mono);color:var(--txt);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px 12px}
+button{cursor:pointer} button:hover,button:focus-visible{border-color:var(--cyan);outline:none}
+button.forte{border-color:var(--green);color:var(--green)}
+.botoes{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+#faixa{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+#faixa button{min-width:34px;padding:4px 6px}
+#faixa button.feito{color:var(--green)} #faixa button.ativo{border-color:var(--amber);color:var(--amber)}
+.rolagem{overflow:auto;max-height:420px;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;font-size:13px;width:100%}
+th,td{padding:4px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:var(--card);color:var(--cyan)}
+td.n{text-align:right}
+.carregando{color:var(--amber)} body:not(.pronto) .precisa{opacity:.4;pointer-events:none}
+ol.ordem{margin:8px 0;padding-left:22px}
+</style>
+</head>
+<body>
+<main>
+  <p><a href="../">← laboratório</a></p>
+  <h1>SQL</h1>
+  <p class="sub">Consultas em um banco de dados que roda dentro do seu navegador. Nada é instalado e nada é enviado para servidor nenhum.</p>
+
+  <h2>O QUE É ISTO</h2>
+  <div class="card">
+    <p style="margin-top:0"><b>SQL</b> é a linguagem para perguntar coisas a um banco de dados. O banco aqui é o <b>SQLite</b>, o mais usado do mundo (está no seu celular), carregado na página pela biblioteca <a href="https://sql.js.org/">sql.js</a>.</p>
+    <p>A base de exercícios tem duas tabelas públicas do <b>IBGE</b>: os <b>27 estados</b> e os <b>5.571 municípios</b> do Brasil. Elas se ligam pela coluna <code>codigo_uf</code>.</p>
+    <p style="margin-bottom:0">Uma consulta sempre segue esta ordem (só <code>SELECT</code> e <code>FROM</code> são obrigatórios):</p>
+    <ol class="ordem">
+      <li><code>SELECT</code> quais colunas</li>
+      <li><code>FROM</code> de qual tabela (<code>JOIN</code> … <code>ON</code> para ligar outra)</li>
+      <li><code>WHERE</code> filtro das linhas</li>
+      <li><code>GROUP BY</code> agrupar · <code>HAVING</code> filtrar os grupos</li>
+      <li><code>ORDER BY</code> ordenar · <code>LIMIT</code> quantas linhas</li>
+    </ol>
+    <p id="estado" class="carregando" style="margin-bottom:0">Carregando o banco…</p>
+  </div>
+
+  <h2>EXERCÍCIOS</h2>
+  <div class="card precisa">
+    <div id="faixa"></div>
+    <div id="exercicio"></div>
+    <div class="botoes">
+      <button id="anterior">◀ anterior</button>
+      <button id="proximo">próximo ▶</button>
+      <button id="conferir" class="forte">Conferir</button>
+      <button id="resposta">Ver uma resposta</button>
+    </div>
+    <div id="veredito"></div>
+  </div>
+
+  <h2>CONSULTA</h2>
+  <div class="grade precisa">
+    <div class="card">
+      <b>Tabelas</b>
+      <div id="tabelas" style="margin-top:8px"></div>
+    </div>
+    <div>
+      <textarea id="sql" spellcheck="false" aria-label="Consulta SQL">SELECT * FROM estados;</textarea>
+      <div class="botoes">
+        <button id="executar" class="forte">Executar (Ctrl+Enter)</button>
+        <button id="restaurar">Restaurar base</button>
+      </div>
+      <div id="resultado"></div>
+    </div>
+  </div>
+
+  <h2>SEUS DADOS</h2>
+  <div class="card precisa">
+    <p style="margin-top:0">Abra um arquivo <b>CSV</b> do seu computador e consulte com SQL. O arquivo é lido <b>só pelo navegador</b>: não sai da sua máquina e some ao fechar a aba.</p>
+    <p class="dim">A página descobre o separador (vírgula, ponto e vírgula ou tabulação), transforma os títulos em nomes simples (sem acento, espaço vira <code>_</code>) e reconhece números. Com ponto e vírgula, aceita vírgula decimal (<code>12,5</code>); números com separador de milhar (<code>1.234,56</code>) ficam como texto.</p>
+    <div class="botoes">
+      <input type="file" id="arquivo" accept=".csv,.txt,text/csv">
+      <input type="text" id="nome-tabela" placeholder="nome da tabela (opcional)">
+      <button id="importar" class="forte">Carregar</button>
+    </div>
+    <div id="importacao"></div>
+    <p class="dim" style="margin-bottom:0">Sugestão: baixe um CSV público (Câmara dos Deputados, IBGE, portal da transparência) e cruze com a tabela <code>municipios</code> pelo código do IBGE.</p>
+  </div>
+
+  <h2>FONTES</h2>
+  <p class="dim">Municípios e estados: <a href="https://github.com/kelvins/municipios-brasileiros">kelvins/municipios-brasileiros</a> (licença MIT, a partir do IBGE). Área dos estados: <a href="https://github.com/datasets-br/state-codes">datasets-br/state-codes</a> (domínio público). Montagem: <code>dados/montar.py</code>.</p>
+</main>
+<script src="lib/sql-wasm-browser.js"></script>
+<script src="exercicios.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
