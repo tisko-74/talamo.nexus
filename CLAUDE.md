@@ -19,3 +19,5 @@ Repositório-laboratório do Leo: sites, dados, SQL, IA. Mapa e regras da casa e
 ## Contexto
 - Configuração completa do usuário: Google Drive → 00-CONTEXTO → CONFIGURAÇÃO_LEO_COMPLETA.md.
 - NEBULOSA: memória do projeto no Drive (pasta NEBULOSA / APP Nebula).
+- Memória mais recente do laboratório: Drive → 00-CONTEXTO/WEB/CONTEXTO_WEB_2026-09-25_talamo-lab.md (ler no início da sessão; atualizar no fim).
+- Não é possível abrir talamo.nexus nem o IP da Mindnet a partir da sessão na nuvem: testar localmente no Chromium e pedir ao Leo que confira no ar.
