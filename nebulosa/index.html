@@ -146,6 +146,9 @@ body{display:flex;align-items:center;justify-content:center;background:radial-gr
 .box.chave .ic{color:var(--cyan)}
 .box.chave .txt{line-height:1.75}
 .loc{color:var(--cyan);opacity:.85}
+.hdr{position:relative}
+.lang{position:absolute;top:10px;right:14px;font:700 8px var(--mono);letter-spacing:1px;color:var(--cyan);background:none;border:1px solid rgba(0,206,209,.45);border-radius:3px;padding:2px 5px;cursor:pointer;opacity:.8}
+.lang:hover{opacity:1}
 .hud{position:absolute;left:0;right:0;bottom:0;height:26px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;
   font-size:8px;color:var(--dim);z-index:6;background:rgba(0,10,0,.6)}
 .scanlines{position:absolute;inset:0;pointer-events:none;z-index:5;opacity:var(--scan);
@@ -295,7 +298,7 @@ body{display:flex;align-items:center;justify-content:center;background:radial-gr
   <div class="tp" id="tp" aria-hidden="true"><span id="tp1"></span><span id="tp2"></span></div>
 
   <div class="screen">
-    <div class="hdr"><div class="room" id="room"></div><div class="stamp" id="stamp"></div><div class="stamp loc" id="loc">LOC: aguardando sinal...</div><div class="stamp loc" id="locOrigin">ORIGEM: 23.5505°S 46.6333°O · SÃO PAULO</div></div>
+    <div class="hdr"><div class="room" id="room"></div><div class="stamp" id="stamp"></div><div class="stamp loc" id="loc">LOC: aguardando sinal...</div><button class="lang" id="langBtn" type="button"></button><div class="stamp loc" id="locOrigin">ORIGEM: 23.5505°S 46.6333°O · SÃO PAULO</div></div>
     <div class="content" id="content">
       <div class="scroll" id="scroll">
         <div class="box">
@@ -333,11 +336,17 @@ body{display:flex;align-items:center;justify-content:center;background:radial-gr
 
 </div>
 
-<script src="banco-de-frases-v5.js"></script>
-<script src="revelacoes.js"></script>
+<script src="i18n.js"></script>
 <script src="degradacao.js"></script>
 <script>
 const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+// textos fixos da página no idioma escolhido (i18n.js)
+(function(){const q=s=>document.querySelector(s),A=(s,k)=>q(s).setAttribute('aria-label',t(k));
+  A('#hub','hubAria');A('#gav','gavAria');A('#prev','prevAria');A('#listen','listenAria');A('#lock','lockAria');A('#undo','undoAria');A('#next','nextAria');
+  q('#prev').textContent=t('prevLbl');q('#next').textContent=t('nextLbl');q('#sync').title=t('syncTitle');q('#standby').textContent=t('standby');
+  q('#loc').textContent=t('locWait');q('#locOrigin').textContent=t('origin');
+  const lb=q('#langBtn');lb.textContent=t('langBtn');lb.setAttribute('aria-label',t('langAria'));lb.onclick=()=>setLang(LANG_CODE==='en'?'pt':'en');
+})();
 </script>
 <script>
 /* ================= DADOS ================= */
@@ -372,7 +381,7 @@ function impossibleStamp(){
   const read=rnd(['T-0011','T-'+pad4(1+Math.floor(Math.random()*60)),'T+0000','T-NULL']);
   const made=rnd(['T-NULL','T-∞','T-NULL','T+∞']);
   const clock=`${rnd(['25','26','27','24'])}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`;
-  const mark=rnd(['confirmada? negada? ambas','sempre esteve aqui','lida antes de enviada','pendente desde T-NULL']);
+  const mark=rnd(t('marks'));
   return {sent,read,made,clock,mark};
 }
 S.ts=impossibleStamp();
@@ -396,7 +405,7 @@ function makeReveal(id,k){
   const list=(window.NEBULOSO_REVEALS||{})[id],room=ROOMS.find(r=>r.id===id);
   if(!list||!list.length||!room)return null;
   k=((k%list.length)+list.length)%list.length;
-  return{icon:room.icon,m:list[k],d:[`Revelação ${k+1}/${list.length}`,`Ilha: ${room.name}`],t:'R',long:true,part:k+1,total:list.length,tag:`R-${String(ROOMS.indexOf(room)+1).padStart(2,'0')} REVELACAO_${k+1}`};
+  return{icon:room.icon,m:list[k],d:[t('revPart',k+1,list.length),t('revIsland',room.name)],t:'R',long:true,part:k+1,total:list.length,tag:`R-${String(ROOMS.indexOf(room)+1).padStart(2,'0')} REVELACAO_${k+1}`};
 }
 function nextReveal(id){
   const list=(window.NEBULOSO_REVEALS||{})[id];if(!list||!list.length)return null;
@@ -468,7 +477,7 @@ function visit(id){
 function toggleFav(){
   if(S.locked){blocked();return}
   const r=room();S.fav=(S.fav===S.room)?null:S.room;store.set('favorita',S.fav);
-  S.tx=S.fav?`> ILHA FAVORITA: ${r.name}`:'> FAVORITA REMOVIDA';beep(S.fav?780:300,.07);log('favorite',S.fav);render();
+  S.tx=S.fav?t('favOn',r.name):t('favOff');beep(S.fav?780:300,.07);log('favorite',S.fav);render();
 }
 
 function log(action,value){
@@ -524,7 +533,7 @@ function buildText(){
   return t;
 }
 const footText=()=>{
-  if(bursting())return '⚠ ERRO DE TRANSMISSÃO | retransmitindo…';
+  if(bursting())return t('burst');
   const cl=currentLangLayer(),lang=cl.layer.id!=='pt'?`${cl.layer.code} ${Math.round(cl.drift)}% | `:'';
   return `${lang}${S.paused?`⏸ +${S.pending} | `:''}${S.special?`REV ${S.special.part}/${S.special.total} | `:''}${branchLabel()} | CONS ${cons()}% | DER ${drift()}%`;
 };
@@ -571,10 +580,10 @@ function render(animate){
   document.documentElement.style.setProperty('--tint',TINT[p]);
   applySliderFX();   // SCAN e BRGT têm função real (ver definição perto dos sliders): recalcula com a fase atual
   $('#room').textContent=r.name+(S.fav===r.id?' ★':'');
-  $('#stamp').textContent=`${S.ts.sent} | ${S.ts.clock} | FASE: ${p}`;
+  $('#stamp').textContent=`${S.ts.sent} | ${S.ts.clock} | ${t('phase')}: ${p}`;
   $('#ic').textContent=f.icon;
-  const t=$('#txt'); t.textContent=buildText()+(S.accepted[S.room+S.idx]?'':'');
-  t.classList.toggle('glitch',p===4&&!REDUCED);
+  const txtEl=$('#txt'); txtEl.textContent=buildText()+(S.accepted[S.room+S.idx]?'':'');
+  txtEl.classList.toggle('glitch',p===4&&!REDUCED);
   // legenda pequena: a camada de linguagem (grego/cirílico/inglês/símbolo), abaixo do texto em PT
   const cl=currentLangLayer(),trEl=$('#tr');
   if(typeof LANG!=='undefined'&&cl.layer.id!=='pt'){
@@ -584,7 +593,7 @@ function render(animate){
   }else{trEl.hidden=true;trEl.textContent=''}
   $('#tx').textContent=S.tx;$('#tx').style.display=S.tx?'block':'none';
   $('#lines').innerHTML=f.d.map(l=>`<div>${l}</div>`).join('');
-  $('#meta').innerHTML=`${f.tag} | enviado: ${S.ts.sent} | lido: ${S.ts.read} | criado: ${S.ts.made}<br>origem: desconhecida | leitura: ${S.ts.mark}${S.accepted[S.room+S.idx]?' | <span class="acc">ACEITO</span>':''}${isSealed()?' | <span class="acc">SELADO</span>':''}`;
+  $('#meta').innerHTML=`${f.tag} | ${t('mSent')}: ${S.ts.sent} | ${t('mRead')}: ${S.ts.read} | ${t('mMade')}: ${S.ts.made}<br>${t('mOrigin')} | ${t('mReading')}: ${S.ts.mark}${S.accepted[S.room+S.idx]?' | <span class="acc">'+t('accepted')+'</span>':''}${isSealed()?' | <span class="acc">'+t('sealedTag')+'</span>':''}`;
   $('#foot').textContent=footText();
   if(animate)$('#srtxt').textContent=f.m.replace(/\.\.\./g,'').replace(/\n/g,'. ');   // leitor de tela recebe o texto LIMPO (as falhas são só visuais)
   if(typeof panelsRefresh==='function')panelsRefresh();
@@ -632,7 +641,7 @@ function renderLive(){
 /* ================= CONTROLES ================= */
 // debug de fase
 const dbg=$('#dbg');
-dbg.innerHTML=['A',1,2,3,4].map(p=>`<button data-p="${p}" title="${p==='A'?'Automático':'Fase '+p}">${p==='A'?'A':'F'+p}</button>`).join('');
+dbg.innerHTML=['A',1,2,3,4].map(p=>`<button data-p="${p}" title="${p==='A'?t('dbgAuto'):t('dbgPhase',p)}">${p==='A'?'A':'F'+p}</button>`).join('');
 dbg.onclick=e=>{const b=e.target.closest('button');if(!b)return;sweepSnd(200,1300,.3);S.override=b.dataset.p==='A'?null:+b.dataset.p;log('phase_override',b.dataset.p);render()};
 
 // sliders
@@ -680,7 +689,7 @@ sync.onpointerup=sync.onpointercancel=()=>{
   if(holding){
     const v=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hold'))||0;
     if(v>=.99){S.accepted[S.room+S.idx]=1;log('fragment_accepted',S.idx);sync.classList.add('grn');setTimeout(()=>sync.classList.remove('grn'),300);beep(880,.12);S.bpm+=2;render()}
-    else if(phase()===4&&v>=.89){$('#tx').style.display='block';$('#tx').textContent='> ACEITAÇÃO NEGADA: sinal insuficiente';beep(120,.25)}
+    else if(phase()===4&&v>=.89){$('#tx').style.display='block';$('#tx').textContent=t('acceptDenied');beep(120,.25)}
     setHold(0);
   }else syncTap();
 };
@@ -694,24 +703,24 @@ function syncTap(){
 // teclado no SYNC: Enter/Espaço = próximo; Shift+Enter = aceitar (na fase 4 o aceite é negado, como no toque longo)
 sync.onkeydown=e=>{
   if(e.key!=='Enter'&&e.key!==' ')return;e.preventDefault();
-  if(e.shiftKey){if(phase()===4){$('#tx').style.display='block';$('#tx').textContent='> ACEITAÇÃO NEGADA: sinal insuficiente';beep(120,.25)}
+  if(e.shiftKey){if(phase()===4){$('#tx').style.display='block';$('#tx').textContent=t('acceptDenied');beep(120,.25)}
     else{S.accepted[S.room+S.idx]=1;log('fragment_accepted',S.idx);beep(880,.12);S.bpm+=2;render()}}
   else syncTap();
 };
 
 // micro-botões
 const MS=['1','2','3','4','5','6','7','8','9'];
-const MLBL={1:['◈','SEAL: selar no Arquivo'],3:['◎','ANALYZE: abrir a análise (fragmento, ramos, fita, espectro, arquivo)'],4:['★','FAVORECER: marcar a Ilha atual'],7:['↶','UNDO: voltar ao fragmento visto antes']};
+const MLBL={1:['◈',t('mSeal')],3:['◎',t('mAnalyze')],4:['★',t('mFav')],7:['↶',t('mUndo')]};
 $('#micro').innerHTML=MS.map(k=>`<button data-k="${k}"${MLBL[k]?` title="${MLBL[k][1]}" aria-label="${MLBL[k][1]}"`:''}>${MLBL[k]?MLBL[k][0]:k}</button>`).join('');
 const lastTap={};
 $('#micro').onclick=e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.k;
   b.classList.add('f');setTimeout(()=>b.classList.remove('f'),200);
   const dbl=Date.now()-(lastTap[k]||0)<500;lastTap[k]=Date.now();
   log('micro_button_tap',k+(dbl?':double':''));
-  if(dbl&&k==='5'){S.demo=!S.demo;store.set('demo',S.demo);S.tx=`> MODO ${S.demo?'DEMO (15s/fase)':'REAL (horas de uso)'}`;render();return}
+  if(dbl&&k==='5'){S.demo=!S.demo;store.set('demo',S.demo);S.tx=t('mode',S.demo);render();return}
   if(S.locked&&k!=='5'&&k!=='3'){blocked();return}   // travado: só o HUB (5) escapa; a análise (3) é só leitura
   ({2:prev,4:()=>toggleFav(),5:hub,6:()=>next(),8:cycle,1:()=>seal(),3:()=>{if(typeof openGaveta==='function')openGaveta()},
-    7:()=>undo(),9:()=>{S.tx='> ESCAPE: não existe';render()}})[k]();
+    7:()=>undo(),9:()=>{S.tx=t('escape');render()}})[k]();
 };
 
 // toggle standby
@@ -732,9 +741,9 @@ function resetCountdown(sp=S.special){S.nextIn=Math.round((30+Math.random()*20-(
 // Botão LISTEN mostra o estado: contagem até a próxima chegada, "RECEBENDO" ou "PAUSA +N novos"
 function paintRx(){
   const rx=$('#rx');
-  rx.innerHTML=S.paused?`<b>PAUSA</b><i>+${S.pending} novos</i>`:S.arriving?`<b>RECEBENDO</b><i>…</i>`:`<b>LISTEN</b><i>${mmss(S.nextIn)}</i>`;
+  rx.innerHTML=S.paused?`<b>${t('rxPause')}</b><i>${t('rxNew',S.pending)}</i>`:S.arriving?`<b>${t('rxRecv')}</b><i>…</i>`:`<b>${t('rxListen')}</b><i>${mmss(S.nextIn)}</i>`;
   const b=$('#listen');b.classList.toggle('on',S.paused);b.setAttribute('aria-pressed',S.paused);
-  const lb=$('#lock');lb.classList.toggle('lk',S.locked);lb.textContent=S.locked?'TRAVADO':'LOCK';lb.setAttribute('aria-pressed',S.locked);
+  const lb=$('#lock');lb.classList.toggle('lk',S.locked);lb.textContent=S.locked?t('lockOn'):t('lockOff');lb.setAttribute('aria-pressed',S.locked);
 }
 // LISTEN: pausa a LEITURA (a tela congela). O rádio continua recebendo e empilha os fragmentos.
 function pause(){
@@ -771,26 +780,26 @@ function silentArrive(){
 // UNDO: volta ao fragmento realmente visto antes (histórico, inclusive saltos de Ilha). Entra em pausa: o rádio segue recebendo.
 // LOCK: trava o fragmento na tela. É uma pausa mais forte: enquanto travado, nada muda a tela (nem ANTERIOR, PRÓXIMO, UNDO ou SYNC).
 // O rádio segue recebendo em silêncio. Destravar (LOCK ou LISTEN de novo) salta para a chegada mais recente.
-function blocked(){S.tx='> TRAVADO: destrave para navegar';render()}
+function blocked(){S.tx=t('blocked');render()}
 function lock(){
   if(S.arriving)return;
   if(S.locked){resume();return}
   if(!S.paused)pause();
-  S.locked=true;S.tx='> FRAGMENTO TRAVADO';beep(150,.12,'sawtooth');log('lock');paintRx();render();
+  S.locked=true;S.tx=t('locked');beep(150,.12,'sawtooth');log('lock');paintRx();render();
 }
 // SEAL: sela o fragmento no Arquivo (só guarda). Na fase 4 o selo pode falhar, de propósito.
 function seal(){
-  if(phase()===4&&Math.random()<.4){S.tx='> SELO NEGADO: sinal insuficiente';beep(120,.25);log('seal_denied');render();return}
+  if(phase()===4&&Math.random()<.4){S.tx=t('sealDenied');beep(120,.25);log('seal_denied');render();return}
   const k=keyOf(S);
-  if(isSealed()){S.tx=`> JÁ SELADO (${S.arq.length} no Arquivo)`;render();return}
+  if(isSealed()){S.tx=t('sealAlready',S.arq.length);render();return}
   S.arq.push({k,room:S.room,idx:S.idx,sp:S.special?S.special.part:0,at:Date.now(),ts:S.ts,m:frag().m});
   if(S.arq.length>ARQ_MAX)S.arq.shift();
-  store.set('arquivo',S.arq);S.tx=`> SELADO no Arquivo (${S.arq.length})`;beep(660,.08);log('seal',k);render();
+  store.set('arquivo',S.arq);S.tx=t('sealed',S.arq.length);beep(660,.08);log('seal',k);render();
 }
 function undo(){
   if(S.locked){blocked();return}
   if(S.arriving)return;
-  if(S.hist.length<2){S.tx='> UNDO: sem histórico anterior';render();return}
+  if(S.hist.length<2){S.tx=t('undoNone');render();return}
   if(!S.paused)pause();
   S.hist.pop();const e=S.hist[S.hist.length-1];
   if(!validEntry(e)){store.set('historico',S.hist);return}
@@ -998,17 +1007,17 @@ S.loc=null;S.locState='idle';
 function fmtCoord(v,pos,neg){return Math.abs(v).toFixed(4)+'°'+(v>=0?pos:neg)}
 function renderLoc(){
   const el=$('#loc');
-  if(S.locState==='denied'){el.textContent='LOC: SINAL BLOQUEADO';return}
-  if(S.locState==='unsupported'){el.textContent='LOC: SEM SENSOR';return}
-  if(!S.loc){el.textContent='LOC: aguardando sinal...';return}
-  let s=`LOC: ${fmtCoord(S.loc.lat,'N','S')} ${fmtCoord(S.loc.lon,'L','O')} ±${Math.round(S.loc.acc)}m`;
+  if(S.locState==='denied'){el.textContent=t('locDenied');return}
+  if(S.locState==='unsupported'){el.textContent=t('locNone');return}
+  if(!S.loc){el.textContent=t('locWait');return}
+  let s=`LOC: ${fmtCoord(S.loc.lat,'N','S')} ${fmtCoord(S.loc.lon,t('east'),t('west'))} ±${Math.round(S.loc.acc)}m`;
   if(phase()===4){s=s.replace(/\d/g,c=>Math.random()<.15?GL[Math.floor(Math.random()*GL.length)]:c)} // fase 4: coordenadas corrompidas
   el.textContent=s;
 }
 // LOC ORIGEM: coordenadas de onde o sinal parte (São Paulo), fixas — não são as do leitor; corrompem junto na fase 4
 function renderLocOrigin(){
   const el=$('#locOrigin');if(!el)return;
-  let s='ORIGEM: 23.5505°S 46.6333°O · SÃO PAULO';
+  let s=t('origin');
   if(phase()===4)s=s.replace(/\d/g,c=>Math.random()<.15?GL[Math.floor(Math.random()*GL.length)]:c);
   el.textContent=s;
 }
@@ -1031,7 +1040,7 @@ function maybeAskLoc(){
   if(S.count<4)return;
   document.removeEventListener('pointerdown',maybeAskLoc);
   if(S.locState!=='idle')return;
-  S.tx='> LOC: o receptor pede a sua posição. Ela fica só neste aparelho: não é gravada nem enviada.';render();
+  S.tx=t('locAsk');render();
   askLoc();
 }
 document.addEventListener('pointerdown',maybeAskLoc);
