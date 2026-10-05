@@ -9,12 +9,20 @@ Tudo roda online (GitHub + hospedagem + navegador), sem instalar nada no computa
 |---|---|---|
 | `index.html` | redireciona `talamo.nexus` direto para a NEBULOSA | — |
 | `nebulosa/` | NEBULOSA — receptor temporal (ficção interativa, HTML/CSS/JS puro, funciona offline) | no ar, público |
+| `nebulosa/en/` | página de divulgação em inglês (prévia de link própria; abre a NEBULOSA em inglês) | no ar |
 | `lab/` | laboratório, **protegido por senha no cPanel** (Privacidade do diretório) | fechado |
 | `lab/index.html` | página com a lista de projetos | — |
 | `lab/sql/` | exercícios de SQL (SQLite/DuckDB no navegador) | vazio |
 | `lab/dados/` | análises, tabelas e gráficos | vazio |
 | `lab/ia/` | testes com modelos de IA | vazio |
 | `sw.js` | desliga o service worker antigo da raiz (época em que a NEBULOSA ficava aqui) | transitório |
+
+## NEBULOSA em dois idiomas
+
+- `i18n.js` escolhe o idioma (`?lang=pt|en` → escolha salva → idioma do navegador) e carrega o conteúdo:
+  `banco-de-frases-v5.js` + `revelacoes.js` (português, referência) ou `*.en.js` (inglês).
+- Textos da interface ficam no dicionário de `i18n.js` (`t('chave')`). Chave sem tradução cai no português.
+- **Mudou uma frase em português? Mude também no `.en.js`** (mesmos ids, tags e ordem).
 
 ## Regras da casa
 
