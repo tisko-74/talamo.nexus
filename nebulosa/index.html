@@ -8,6 +8,18 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>NEBULOSA</title>
+<meta name="description" content="Um receptor que capta fragmentos de alguém chamado Alex. Só se recebe. Nunca se envia. Ficção interativa no navegador.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NEBULOSA">
+<meta property="og:title" content="NEBULOSA — receptor temporal">
+<meta property="og:description" content="Um receptor que capta fragmentos de alguém chamado Alex. Só se recebe. Nunca se envia.">
+<meta property="og:url" content="https://talamo.nexus/nebulosa/">
+<meta property="og:image" content="https://talamo.nexus/nebulosa/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Aparelho de tela verde exibindo um fragmento recebido, ao lado do título NEBULOSA">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
 <link href="fonts/jetbrains-mono.css" rel="stylesheet">
 <style>
 :root{
@@ -1013,8 +1025,16 @@ function watchLoc(){
     e=>{if(e.code===1){S.locState='denied';navigator.geolocation.clearWatch(locWatch);locWatch=null}else if(S.locState!=='ok')S.locState='idle';renderLoc()},
     {enableHighAccuracy:true,maximumAge:10000,timeout:20000});
 }
-// pede permissão no primeiro toque (gesto do usuário), nunca em silêncio
-document.addEventListener('pointerdown',askLoc,{once:true});
+// pede permissão só depois de alguns fragmentos (o leitor já sabe o que é o receptor), num toque, nunca em silêncio,
+// e avisa na tela que a posição fica só neste aparelho
+function maybeAskLoc(){
+  if(S.count<4)return;
+  document.removeEventListener('pointerdown',maybeAskLoc);
+  if(S.locState!=='idle')return;
+  S.tx='> LOC: o receptor pede a sua posição. Ela fica só neste aparelho: não é gravada nem enviada.';render();
+  askLoc();
+}
+document.addEventListener('pointerdown',maybeAskLoc);
 // bateria: GPS desligado com a aba oculta; volta ao reabrir (só se já havia permissão)
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){if(locWatch!==null){navigator.geolocation.clearWatch(locWatch);locWatch=null}}
