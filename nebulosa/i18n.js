@@ -6,14 +6,16 @@
    chave sem tradução cai no português.
    ============================================================ */
 (function(){
-const SUP=['pt','en'];
+// Bandas do seletor giratório. off:true = ainda sem tradução (aparece apagada; ao tocar, "sem sinal").
+const BANDS=[{code:'pt',lbl:'PT',name:'Português'},{code:'en',lbl:'EN',name:'English'},{code:'zh',lbl:'中',name:'中文',off:true}];
+const SUP=BANDS.filter(b=>!b.off).map(b=>b.code);
 let q=null,saved=null;
 try{q=new URLSearchParams(location.search).get('lang')}catch(e){}
 try{saved=localStorage.getItem('nebuloso_lang')}catch(e){}
 const nav=(navigator.language||'pt').toLowerCase();
 const L=SUP.includes(q)?q:SUP.includes(saved)?saved:(nav.startsWith('pt')?'pt':'en');
 if(SUP.includes(q))try{localStorage.setItem('nebuloso_lang',q)}catch(e){}
-window.LANG_CODE=L;
+window.LANG_CODE=L;window.LANG_BANDS=BANDS;
 document.documentElement.lang=L==='en'?'en':'pt-BR';
 
 const STR={
@@ -24,7 +26,7 @@ pt:{
   undoAria:'Desfazer: voltar ao fragmento visto antes',
   nextAria:'Próximo fragmento na cadeia', nextLbl:'PRÓXIMO →',
   syncTitle:'Toque: próximo · Segure: aceitar', standby:'SISTEMA EM REPOUSO',
-  langBtn:'EN', langAria:'Read in English',
+  bandLbl:'BANDA', bandAria:n=>`Seletor de idioma (banda). Atual: ${n}. Toque para girar.`, bandOff:n=>`> BANDA ${n}: sem sinal`,
   marks:['confirmada? negada? ambas','sempre esteve aqui','lida antes de enviada','pendente desde T-NULL'],
   favOn:n=>`> ILHA FAVORITA: ${n}`, favOff:'> FAVORITA REMOVIDA',
   phase:'FASE', dbgAuto:'Automático', dbgPhase:p=>'Fase '+p,
@@ -71,7 +73,7 @@ en:{
   undoAria:'Undo: go back to the fragment seen before',
   nextAria:'Next fragment in the chain', nextLbl:'NEXT →',
   syncTitle:'Tap: next · Hold: accept', standby:'SYSTEM AT REST',
-  langBtn:'PT', langAria:'Ler em português',
+  bandLbl:'BAND', bandAria:n=>`Language selector (band). Current: ${n}. Tap to turn.`, bandOff:n=>`> BAND ${n}: no signal`,
   marks:['confirmed? denied? both','was always here','read before it was sent','pending since T-NULL'],
   favOn:n=>`> FAVORITE ISLAND: ${n}`, favOff:'> FAVORITE REMOVED',
   phase:'PHASE', dbgAuto:'Automatic', dbgPhase:p=>'Phase '+p,

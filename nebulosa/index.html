@@ -66,7 +66,25 @@ body{display:flex;align-items:center;justify-content:center;background:radial-gr
 .screw.p-bc-r{bottom:calc(4px + env(safe-area-inset-bottom));right:32%}
 
 /* topo: câmera + HUB (fora da tela) */
-.top{display:flex;align-items:center;justify-content:space-between;height:64px;flex:none}
+.top{display:flex;align-items:center;justify-content:space-between;height:64px;flex:none;position:relative}
+/* BANDA — seletor giratório de idioma, como o seletor de faixa (AM/FM/SW) de um rádio antigo.
+   Botão serrilhado no mesmo acabamento do HUB; marcações pintadas em arco à esquerda; a ativa acende em ciano.
+   Fica fora do fluxo (absolute) para não deslocar câmera e HUB. */
+.band{position:absolute;top:2px;right:60px;width:76px;height:60px}
+.band .knob{position:absolute;right:4px;top:9px;width:36px;height:36px;border-radius:50%;padding:0;cursor:pointer;
+  background:radial-gradient(circle at 32% 26%,#4c4c4c 0%,#232323 58%,#111 72%,transparent 73%),repeating-conic-gradient(#2c2c2c 0 7deg,#454545 7deg 14deg);
+  border:2px solid #666;border-right-color:#0a0a0a;border-bottom-color:#0a0a0a;
+  box-shadow:0 2px 0 #000,0 4px 8px rgba(0,0,0,.7),0 0 0 2px #0a0a0a,0 0 0 3px #3a3a3a}
+.band .knob i{position:absolute;left:50%;top:50%;width:14px;height:2px;margin-top:-1px;border-radius:1px;transform-origin:0 50%;
+  background:var(--cyan);box-shadow:0 0 5px var(--cyan);transform:rotate(var(--r,180deg));transition:transform .42s cubic-bezier(.3,1.45,.5,1)}
+.band .knob:active{transform:translateY(1px)}
+.band .mk{position:absolute;left:52px;top:27px;width:18px;height:11px;margin:-5px 0 0 -9px;padding:0;background:none;border:0;cursor:pointer;
+  font:700 7px var(--mono);letter-spacing:.5px;color:#8a8a8a;text-shadow:0 1px 0 #000;
+  transform:rotate(var(--a)) translate(29px) rotate(calc(-1 * var(--a)))}
+.band .mk.on{color:var(--cyan);text-shadow:0 0 6px var(--cyan),0 0 2px var(--cyan)}
+.band .mk.off{color:#4a4a4a}
+.band .mk.off:hover,.band .mk:not(.on):hover{color:var(--bezel)}
+.band b{position:absolute;right:4px;bottom:0;width:36px;text-align:center;font:6px var(--mono);letter-spacing:1px;color:var(--bezel);opacity:.75}
 .dbg{display:flex;gap:4px;width:110px}
 .dbg button{width:22px;height:22px;font:8px var(--mono);border:1px solid #2a2a2a;border-radius:6px;
   background:linear-gradient(180deg,#161616,#0a0a0a 60%,#050505);color:#555;cursor:pointer;padding:0;
@@ -146,9 +164,6 @@ body{display:flex;align-items:center;justify-content:center;background:radial-gr
 .box.chave .ic{color:var(--cyan)}
 .box.chave .txt{line-height:1.75}
 .loc{color:var(--cyan);opacity:.85}
-.hdr{position:relative}
-.lang{position:absolute;top:10px;right:14px;font:700 8px var(--mono);letter-spacing:1px;color:var(--cyan);background:none;border:1px solid rgba(0,206,209,.45);border-radius:3px;padding:2px 5px;cursor:pointer;opacity:.8}
-.lang:hover{opacity:1}
 .hud{position:absolute;left:0;right:0;bottom:0;height:26px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;
   font-size:8px;color:var(--dim);z-index:6;background:rgba(0,10,0,.6)}
 .scanlines{position:absolute;inset:0;pointer-events:none;z-index:5;opacity:var(--scan);
@@ -292,13 +307,14 @@ body{display:flex;align-items:center;justify-content:center;background:radial-gr
   <div class="top">
     <div class="dbg" id="dbg"></div>
     <div class="camera"><i></i><b></b></div>
+    <div class="band" id="band"></div>
     <button class="key hub" id="hub" aria-label="HUB: novo início aleatório"><i></i><span>HUB</span></button>
   </div>
 
   <div class="tp" id="tp" aria-hidden="true"><span id="tp1"></span><span id="tp2"></span></div>
 
   <div class="screen">
-    <div class="hdr"><div class="room" id="room"></div><div class="stamp" id="stamp"></div><div class="stamp loc" id="loc">LOC: aguardando sinal...</div><button class="lang" id="langBtn" type="button"></button><div class="stamp loc" id="locOrigin">ORIGEM: 23.5505°S 46.6333°O · SÃO PAULO</div></div>
+    <div class="hdr"><div class="room" id="room"></div><div class="stamp" id="stamp"></div><div class="stamp loc" id="loc">LOC: aguardando sinal...</div><div class="stamp loc" id="locOrigin">ORIGEM: 23.5505°S 46.6333°O · SÃO PAULO</div></div>
     <div class="content" id="content">
       <div class="scroll" id="scroll">
         <div class="box">
@@ -345,7 +361,6 @@ const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').
   A('#hub','hubAria');A('#gav','gavAria');A('#prev','prevAria');A('#listen','listenAria');A('#lock','lockAria');A('#undo','undoAria');A('#next','nextAria');
   q('#prev').textContent=t('prevLbl');q('#next').textContent=t('nextLbl');q('#sync').title=t('syncTitle');q('#standby').textContent=t('standby');
   q('#loc').textContent=t('locWait');q('#locOrigin').textContent=t('origin');
-  const lb=q('#langBtn');lb.textContent=t('langBtn');lb.setAttribute('aria-label',t('langAria'));lb.onclick=()=>setLang(LANG_CODE==='en'?'pt':'en');
 })();
 </script>
 <script>
@@ -643,6 +658,24 @@ function renderLive(){
 const dbg=$('#dbg');
 dbg.innerHTML=['A',1,2,3,4].map(p=>`<button data-p="${p}" title="${p==='A'?t('dbgAuto'):t('dbgPhase',p)}">${p==='A'?'A':'F'+p}</button>`).join('');
 dbg.onclick=e=>{const b=e.target.closest('button');if(!b)return;sweepSnd(200,1300,.3);S.override=b.dataset.p==='A'?null:+b.dataset.p;log('phase_override',b.dataset.p);render()};
+
+// BANDA (idioma): tocar no botão gira para a próxima banda disponível; tocar numa marcação vai direto a ela.
+// Banda sem tradução responde "sem sinal". Trocar recarrega a página no idioma escolhido (i18n.js lembra).
+(function(){
+  const box=$('#band'),B=window.LANG_BANDS||[],cur=Math.max(0,B.findIndex(b=>b.code===LANG_CODE));
+  const ang=i=>180+((B.length-1)/2-i)*38;          // arco à esquerda do botão: 1ª banda em cima
+  box.innerHTML=B.map((b,i)=>`<button type="button" class="mk${i===cur?' on':''}${b.off?' off':''}" data-i="${i}" style="--a:${ang(i)}deg" aria-label="${b.name}">${b.lbl}</button>`).join('')
+    +`<button type="button" class="knob" aria-label="${t('bandAria',B[cur].name)}"><i style="--r:${ang(cur)}deg"></i></button><b>${t('bandLbl')}</b>`;
+  const ptr=box.querySelector('.knob i');let busy=false;
+  function pick(i){
+    if(busy||i===cur)return;const b=B[i];
+    ptr.style.setProperty('--r',ang(i)+'deg');beep(1500,.02,'square',.012);
+    if(b.off){S.tx=t('bandOff',b.name);render();beep(120,.2,'sawtooth',.02);setTimeout(()=>{ptr.style.setProperty('--r',ang(cur)+'deg')},650);return}
+    busy=true;sweepSnd(300,1100,.35);log('band',b.code);setTimeout(()=>setLang(b.code),480);
+  }
+  box.querySelector('.knob').onclick=()=>{let i=cur;do{i=(i+1)%B.length}while(B[i].off&&i!==cur);pick(i)};
+  box.querySelectorAll('.mk').forEach(m=>m.onclick=()=>pick(+m.dataset.i));
+})();
 
 // sliders
 const SL=[['scan','SCAN','#00FF00'],['brgt','BRGT','#FFFF00'],['sgnl','SGNL','#00CED1']];
